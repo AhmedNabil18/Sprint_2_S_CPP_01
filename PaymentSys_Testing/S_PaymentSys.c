@@ -12,7 +12,6 @@
  **------------------**/
 #include "S_PaymentSys.h"
 
-
 /**
  ** GLOBAL VARIABLES
  **/
@@ -37,7 +36,7 @@ strAccountBalance_t  astr_ServerDataBase[PS_DATABASE_SIZE] =
 * Return value: PS_Error_t -> State of the function returned with PS_ERROR_OK or PS_ERROR_NOK
 * Description: Function to Start the Payment System Application
 * *************************************************************************************/
-PS_Error_t PS_StartPaymentSystem(void)
+PS_Error_t PS_StartPaymentSystem(strTransactionData_t* str_TC_Data)
 {
     strCardData_t stCardD_User1;
     strCardData_t* pstCardD_User1 = &stCardD_User1;
@@ -47,9 +46,14 @@ PS_Error_t PS_StartPaymentSystem(void)
 
     strTransactionData_t strTransD_user;
 
-    PS_getCardData(pstCardD_User1);
-    PS_getTerminalData(pstTermD_User1);
-
+    /*******************************************************************/
+//    PS_getCardData(pstCardD_User1);
+//    PS_getTerminalData(pstTermD_User1);
+    /*******************************************************************/
+    /** ONLY FOR TESTING **/
+    stCardD_User1 = str_TC_Data->stCardD_user;
+    stTermD_User1 = str_TC_Data->stTermD_user;
+    /*******************************************************************/
     strTransD_user.stCardD_user = stCardD_User1;
     strTransD_user.stTermD_user = stTermD_User1;
     strTransD_user.enTransS_user = TRANS_DENIED;
@@ -231,7 +235,7 @@ PS_Error_t PS_checkExpiration(uint8_t* pau8_cardExpirationDate, uint8_t* pau8_tr
     return PS_CHECK_EXPIRATION_ERROR;
 }
 
-
+/*
 void PS_ApplicationStart(void)
 {
     uint8_t User_Answer='N';
@@ -244,4 +248,4 @@ void PS_ApplicationStart(void)
         printf("Do you want to continue? (Y/N)\n");
         scanf(" %c",&User_Answer);
     }while(User_Answer == 'Y');
-}
+}*/

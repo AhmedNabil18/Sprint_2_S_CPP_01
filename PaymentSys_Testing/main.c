@@ -3,6 +3,6 @@
 
 int main()
 {
-    printf("Hello world!\n");
+    TC_ExecuteAndLog();
     return 0;
 }

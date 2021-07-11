@@ -31,6 +31,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Platform_Types.h" />
+		<Unit filename="S_PaymentSys.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="S_PaymentSys.h" />
+		<Unit filename="StringManipulation.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="StringManipulation.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

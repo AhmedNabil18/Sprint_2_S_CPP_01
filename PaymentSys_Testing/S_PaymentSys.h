@@ -17,7 +17,6 @@
 #include "Platform_Types.h"
 #include "StringManipulation.h"
 
-
 /**
  ** MACROS and CONSTANTS
  **/
@@ -35,7 +34,7 @@
 #define PS_PAN_NOT_FOUND                0x13
 
 #define PS_ERROR_OK                     0xFF
-#define PS_ERROR_NOK                     0xAA
+#define PS_ERROR_NOK                    0xAA
 
 
 #define PS_DATABASE_SIZE                10U
@@ -84,12 +83,8 @@ typedef uint8_t PS_Error_t;
  **---- Functions Prototype ----**
  *********************************/
 
-/**
- ** FUNCTIONS PROTOTYPE
- **/
-
 void PS_ApplicationStart(void);
-PS_Error_t PS_StartPaymentSystem(void);
+PS_Error_t PS_StartPaymentSystem(strTransactionData_t* str_TC_Data);
 PS_Error_t PS_getCardData(strCardData_t * pstrCD_user);
 PS_Error_t PS_getTerminalData(strTerminalData_t * pstrTD_user);
 PS_Error_t PS_processTerminal(strCardData_t * pstrCD_user, strTerminalData_t * pstrTD_user);

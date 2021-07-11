@@ -17,15 +17,11 @@
 
 /*************************************************************************************
 * Service Name: stringLength
-* Parameters (in): pau32_array -> Pointer to array of data to search in.
-*                  u8_arraySize -> Size of the array pau32_array.
-*                  u32_number -> The number to be searched.
+* Parameters (in): string1 -> Pointer to string.
 * Parameters (inout): None
 * Parameters (out):None
-* Return value: uint8_t -> unsigned character returns the index of the u32_number.
-*                          (-1) returned if the u32_number not found.
-* Description: Function to search for u32_number inside the pau32_array and return its index
-*              if found, otherwise returns (-1).
+* Return value: uint8_t -> unsigned character returns the length of the string + NULL Terminator
+* Description: Function to count the number of elements in the string including the NULL Terminator
 * *************************************************************************************/
 uint8_t stringLength(uint8_t* string1)
 {
@@ -51,6 +47,16 @@ uint8_t stringCompare(uint8_t* string1, uint8_t* string2)
     return 1;
 }
 
+void stringCopy(uint8_t* stringSource, uint8_t* stringDestination)
+{
+    uint8_t u8_loopIndex=0;
+    while(stringSource[u8_loopIndex] != '\0')
+    {
+        stringDestination[u8_loopIndex] = stringSource[u8_loopIndex];
+        u8_loopIndex++;
+    }
+    stringDestination[u8_loopIndex] = '\0';
+}
 
 /*
 uint16_t arrayToInteger(uint8_t* pu8_Array)
