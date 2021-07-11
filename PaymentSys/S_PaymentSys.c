@@ -122,6 +122,20 @@ PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user)
 }
 
 /*************************************************************************************
+* Service Name: PS_saveTransaction
+* Parameters (in): strTranD_user -> structure hold the transaction data.
+* Parameters (inout): None
+* Parameters (out):None
+* Return value: PS_Error_t -> State of the function returned with PS_SERVER_APPROVED,
+                              PS_BALANCE_LOW, PS_PAN_NOT_FOUND or PS_ERROR_OK.
+* Description: Function to send data to the server and process it.
+* *************************************************************************************/
+PS_Error_t PS_saveTransaction(strTransactionData_t strTranD_user)
+{
+
+}
+
+/*************************************************************************************
 * Service Name: PS_getCardData
 * Parameters (in): None
 * Parameters (inout): None
