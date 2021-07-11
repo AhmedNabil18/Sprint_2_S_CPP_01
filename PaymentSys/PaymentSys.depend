@@ -1,0 +1,37 @@
+# depslib dependency file v1.0
+1626004559 source:h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\main.c
+	<stdio.h>
+	<stdlib.h>
+	"S_PaymentSys.h"
+
+1625836835 h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\platform_types.h
+
+1625912178 source:h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\s_algo_task.c
+	"S_Algo_Task.h"
+
+1625911198 h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\s_algo_task.h
+	<stdlib.h>
+	"Platform_Types.h"
+
+1625875725 source:h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\stack_ds.c
+	"Stack_DS.h"
+
+1625875703 h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\stack_ds.h
+	<stdlib.h>
+	"Platform_Types.h"
+
+1626004073 h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\s_paymentsys.h
+	<stdlib.h>
+	"Platform_Types.h"
+	"StringManipulation.h"
+
+1626003978 h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\stringmanipulation.h
+	<stdlib.h>
+	"Platform_Types.h"
+
+1626004800 source:h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\s_paymentsys.c
+	"S_PaymentSys.h"
+
+1626003977 source:h:\automotive sw bootcamp - sprints\sprint_2\s_cpp_01\paymentsys\stringmanipulation.c
+	"StringManipulation.h"
+

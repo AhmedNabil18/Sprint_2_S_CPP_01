@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "S_PaymentSys.h"
+
+int main()
+{
+    strCardData_t stCardD_User1;
+    strCardData_t* pstCardD_User1 = &stCardD_User1;
+
+    strTerminalData_t stTermD_User1;
+    strTerminalData_t* pstTermD_User1 = &stTermD_User1;
+
+    strTransactionData_t strTransD_user;
+
+    PS_getCardData(pstCardD_User1);
+    PS_getTerminalData(pstTermD_User1);
+
+    strTransD_user.stCardD_user = stCardD_User1;
+    strTransD_user.stTermD_user = stTermD_User1;
+    strTransD_user.enTransS_user = TRANS_DENIED;
+
+    if(PS_processTerminal(pstCardD_User1, pstTermD_User1) != PS_TERMINAL_APPROVED)
+    {
+        printf("Transaction Process Denied\n");
+        PS_sendTransactionToServer(strTransD_user);
+        return 0;
+    }
+
+    strTransD_user.enTransS_user = TRANS_APPROVED;
+    PS_sendTransactionToServer(strTransD_user);
+    return 0;
+}

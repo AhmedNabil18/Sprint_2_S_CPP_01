@@ -1,0 +1,196 @@
+/*******************************************************************************
+ * File : S_PaymentSys.c
+ * Source File for Task_04 in Sprint_02 S_CPP_01
+ * Payment System Application
+ * Description: ATM Payment System which Reads Card from Client, Check Validity
+                of Data, and process a transaction
+ *******************************************************************************/
+
+
+/**------------------**
+ **---- Includes ----**
+ **------------------**/
+#include "S_PaymentSys.h"
+
+
+/**
+ ** GLOBAL VARIABLES
+ **/
+strAccountBalance_t  astr_ServerDataBase[PS_DATABASE_SIZE] =
+{
+    {"123456789",100.0},{"234567891",6000.0},{"567891234",3250.25},{"456789123",1500.12},
+    {"258649173",500.0},{"654823719",2100.0},{"971362485",0.0},{"793148625",1.0},
+    {"123123456",10.12},{"456789321",0.55}
+};
+
+/**************************************
+ **---- Functions Implementation ----**
+ **************************************/
+
+/*************************************************************************************
+* Service Name: PS_sendTransactionToServer
+* Parameters (in): pau32_array -> Pointer to array of data to search in.
+*                  u8_arraySize -> Size of the array pau32_array.
+*                  u32_number -> The number to be searched.
+* Parameters (inout): None
+* Parameters (out):None
+* Return value: uint8_t -> unsigned character returns the index of the u32_number.
+*                          (-1) returned if the u32_number not found.
+* Description: Function to search for u32_number inside the pau32_array and return its index
+*              if found, otherwise returns (-1).
+* *************************************************************************************/
+PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user)
+{
+    uint8_t u8_userIndexInDataBase=0;
+    if(strTranD_user.enTransS_user == TRANS_DENIED)
+    {
+        /**
+         ** If the process was denied by the terminal
+         **/
+    }else
+    {
+        /**
+         ** Check if PAN exists
+         **/
+        for(u8_userIndexInDataBase=0; u8_userIndexInDataBase<PS_DATABASE_SIZE; u8_userIndexInDataBase++)
+        {
+            if(stringCompare( strTranD_user.stCardD_user.au8_primaryAccountNumber, \
+                              astr_ServerDataBase[u8_userIndexInDataBase].u8_primaryAccountNumber))
+            {
+                strTranD_user.enTransS_user = TRANS_APPROVED;
+                break;
+            }else
+            {
+                strTranD_user.enTransS_user = TRANS_DENIED;
+            }
+        }
+        if(strTranD_user.enTransS_user == TRANS_DENIED)
+        {
+            printf("Transaction Failed\n");
+            return PS_PAN_NOT_FOUND;
+        }
+        /**
+         ** Check if Balance enough
+         **/
+        if(astr_ServerDataBase[u8_userIndexInDataBase].balance < strTranD_user.stTermD_user.f32_transAmount)
+        {
+            printf("Transaction Failed\n");
+            strTranD_user.enTransS_user = TRANS_DENIED;
+            return PS_BALANCE_LOW;
+        }else
+        {
+            printf("Successful Transaction\n");
+            strTranD_user.enTransS_user = TRANS_APPROVED;
+            return PS_SERVER_APPROVED;
+        }
+    }
+}
+
+PS_Error_t PS_getCardData(strCardData_t * pstrCD_user)
+{
+    printf("Please Insert your Name: ");
+    gets(pstrCD_user->au8_cardHolderName);
+
+    printf("Please Insert your Card Number: ");
+    gets(pstrCD_user->au8_primaryAccountNumber);
+
+    printf("Please Insert Expiry Date: ");
+    gets(pstrCD_user->au8_cardExpirationDate);
+
+    return PS_ERROR_OK;
+}
+
+PS_Error_t PS_getTerminalData(strTerminalData_t * pstrTD_user)
+{
+    pstrTD_user->f32_maxAmount = 8000.0;
+    uint8_t au8_userTransactionDate[11];
+
+    printf("Please Insert Amount in EGP: ");
+    scanf("%f",&(pstrTD_user->f32_transAmount));
+
+    printf("Please Insert the Transaction Date: ");
+    scanf("%s",pstrTD_user->au8_transactionDate);
+
+    return PS_ERROR_OK;
+}
+
+PS_Error_t PS_processTerminal(strCardData_t * pstrCD_user, strTerminalData_t * pstrTD_user)
+{
+    PS_Error_t returnValue=0;
+    /**********************************/
+    /**
+     ** Expiration Check
+     **/
+    returnValue = PS_checkExpiration(pstrCD_user->au8_cardExpirationDate, pstrTD_user->au8_transactionDate);
+    switch(returnValue)
+    {
+    case PS_CARD_EXPIRED:
+        printf("Your Card is Expired\n");
+        return PS_CARD_EXPIRED;
+    case PS_CARD_NOT_EXPIRED:
+        break;
+    default:
+        return PS_CHECK_EXPIRATION_ERROR;
+    }
+    /**********************************/
+    /**
+     ** Amount Check
+     **/
+    if((pstrTD_user->f32_maxAmount) < (pstrTD_user->f32_transAmount))
+        return PS_MAX_AMOUNT_EXCEEDED;
+    else{/** Continue Processing **/}
+    /**********************************/
+    return PS_TERMINAL_APPROVED;
+}
+
+PS_Error_t PS_checkExpiration(uint8_t* pau8_cardExpirationDate, uint8_t* pau8_transactionDate)
+{
+    uint8_t u8_Year = ((pau8_transactionDate[8]-'0')*10) + (pau8_transactionDate[9]-'0');
+    uint8_t u8_expiryYear = ((pau8_cardExpirationDate[3]-'0')*10) + (pau8_cardExpirationDate[4]-'0');
+
+    if(u8_Year > u8_expiryYear) return PS_CARD_EXPIRED;
+    else if(u8_Year < u8_expiryYear) return PS_CARD_NOT_EXPIRED;
+    else
+    {
+        uint8_t u8_Month = ((pau8_transactionDate[3]-'0')*10) + (pau8_transactionDate[4]-'0');
+        uint8_t u8_expiryMonth = ((pau8_cardExpirationDate[0]-'0')*10) + (pau8_cardExpirationDate[1]-'0');
+        if(u8_Month > u8_expiryMonth) return PS_CARD_EXPIRED;
+        else if(u8_Month < u8_expiryMonth) return PS_CARD_NOT_EXPIRED;
+    }
+    return PS_CHECK_EXPIRATION_ERROR;
+}
+
+/*
+uint16_t arrayToInteger(uint8_t* pu8_Array)
+{
+    uint8_t u8_arrLength = stringLength(pu8_Array);
+    uint8_t u8_loopIndex=0;
+    for(u8_loopIndex=0; u8_loopIndex<u8_arrLength; u8_loopIndex++)
+    {
+
+    }
+}*/
+
+uint8_t stringLength(uint8_t* string1)
+{
+    uint8_t u8_loopIndex=0;
+    while(string1[u8_loopIndex] != '\0')
+    {
+        u8_loopIndex++;
+    }
+    return u8_loopIndex+1;
+}
+
+uint8_t stringCompare(uint8_t* string1, uint8_t* string2)
+{
+    uint8_t u8_loopIndex=0;
+    if(stringLength(string1) != stringLength(string2))
+        return 0;
+    while(string1[u8_loopIndex] != '\0')
+    {
+        if(string1[u8_loopIndex] != string2[u8_loopIndex])
+            return 0;
+        u8_loopIndex++;
+    }
+    return 1;
+}
