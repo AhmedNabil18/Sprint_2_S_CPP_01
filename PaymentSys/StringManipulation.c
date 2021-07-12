@@ -40,8 +40,10 @@ uint8_t stringLength(uint8_t* string1)
 uint8_t stringCompare(uint8_t* string1, uint8_t* string2)
 {
     uint8_t u8_loopIndex=0;
-    if(stringLength(string1) != stringLength(string2))
-        return 0;
+    if(stringLength(string1) > stringLength(string2))
+        return 2;
+    if(stringLength(string1) < stringLength(string2))
+        return 3;
     while(string1[u8_loopIndex] != '\0')
     {
         if(string1[u8_loopIndex] != string2[u8_loopIndex])
@@ -50,6 +52,41 @@ uint8_t stringCompare(uint8_t* string1, uint8_t* string2)
     }
     return 1;
 }
+
+
+uint8_t Max_String_Num(uint8_t* string1, uint8_t* string2)
+{
+    uint8_t u8_retValue = stringCompare(string1,string2);
+
+    switch(u8_retValue)
+    {
+    case 1:
+        /* Two Numbers are equal */
+        return 0;
+    case 2:
+        /* string 1 > string 2 */
+        return 1;
+    case 3:
+        /* string 2 > string 1 */
+        return 2;
+    case 0:
+        break;
+    default:
+        break;
+    }
+    uint8_t u8_loopIndex = 0;
+
+    while(string1[u8_loopIndex] != '\0')
+    {
+        if(string1[u8_loopIndex] > string2[u8_loopIndex])
+            return 1;
+        else if(string1[u8_loopIndex] < string2[u8_loopIndex])
+            return 2;
+        u8_loopIndex++;
+    }
+    return 3;
+}
+
 
 
 /*

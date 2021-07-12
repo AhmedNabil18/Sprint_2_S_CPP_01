@@ -25,7 +25,7 @@
  **/
 uint8_t stringCompare(uint8_t* string1, uint8_t* string2);
 uint8_t stringLength(uint8_t* string1);
-
+uint8_t Max_String_Num(uint8_t* string1, uint8_t* string2);
 #endif // _STRINGMANIPULATION_H_
 
 

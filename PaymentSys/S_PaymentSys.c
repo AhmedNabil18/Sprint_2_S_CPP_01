@@ -11,19 +11,22 @@
  **---- Includes ----**
  **------------------**/
 #include "S_PaymentSys.h"
-
+#include "LinkedList.h"
 
 /**
  ** GLOBAL VARIABLES
  **/
 
 /*** Server Data Base --- Array of structures holds user PAN and Balance ***/
-strAccountBalance_t  astr_ServerDataBase[PS_DATABASE_SIZE] =
+strAccountBalance_t  gastr_ServerDataBase[PS_DATABASE_SIZE] =
 {
     {"123456789",100.0},{"234567891",6000.0},{"567891234",3250.25},{"456789123",1500.12},
     {"258649173",500.0},{"654823719",2100.0},{"971362485",0.0},{"793148625",1.0},
     {"123123456",10.12},{"456789321",0.55}
 };
+
+/*** Transaction Data Base --- LinkedList holds the transactions done ***/
+str_LinkedList gstrLnkLst_TransactionDataBase;
 
 /**************************************
  **---- Functions Implementation ----**
@@ -39,6 +42,11 @@ strAccountBalance_t  astr_ServerDataBase[PS_DATABASE_SIZE] =
 * *************************************************************************************/
 PS_Error_t PS_StartPaymentSystem(void)
 {
+    /********************************************************
+     **** Create a Transaction Data Base with LinkedList ****
+     ********************************************************/
+    gstrLnkLst_TransactionDataBase = LinkedList_Create();
+
     strCardData_t stCardD_User1;
     strCardData_t* pstCardD_User1 = &stCardD_User1;
 
@@ -72,17 +80,20 @@ PS_Error_t PS_StartPaymentSystem(void)
 * Parameters (inout): None
 * Parameters (out):None
 * Return value: PS_Error_t -> State of the function returned with PS_SERVER_APPROVED,
-                              PS_BALANCE_LOW, PS_PAN_NOT_FOUND or PS_ERROR_OK.
+*                             PS_BALANCE_LOW, PS_PAN_NOT_FOUND or PS_ERROR_OK.
 * Description: Function to send data to the server and process it.
 * *************************************************************************************/
 PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user)
 {
     uint8_t u8_userIndexInDataBase=0;
+
     if(strTranD_user.enTransS_user == TRANS_DENIED)
     {
         /**
          ** If the process was denied by the terminal
+         ** Continue and save the transaction with the denial.
          **/
+        PS_saveTransaction(strTranD_user);
     }else
     {
         /**
@@ -91,7 +102,7 @@ PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user)
         for(u8_userIndexInDataBase=0; u8_userIndexInDataBase<PS_DATABASE_SIZE; u8_userIndexInDataBase++)
         {
             if(stringCompare( strTranD_user.stCardD_user.au8_primaryAccountNumber, \
-                              astr_ServerDataBase[u8_userIndexInDataBase].u8_primaryAccountNumber))
+                              gastr_ServerDataBase[u8_userIndexInDataBase].u8_primaryAccountNumber))
             {
                 strTranD_user.enTransS_user = TRANS_APPROVED;
                 break;
@@ -102,23 +113,25 @@ PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user)
         }
         if(strTranD_user.enTransS_user == TRANS_DENIED)
         {
+            PS_saveTransaction(strTranD_user);
             return PS_PAN_NOT_FOUND;
         }
         /**
          ** Check if Balance enough
          **/
-        if(astr_ServerDataBase[u8_userIndexInDataBase].balance < strTranD_user.stTermD_user.f32_transAmount)
+        if(gastr_ServerDataBase[u8_userIndexInDataBase].balance < strTranD_user.stTermD_user.f32_transAmount)
         {
             strTranD_user.enTransS_user = TRANS_DENIED;
+            PS_saveTransaction(strTranD_user);
             return PS_BALANCE_LOW;
         }else
         {
             printf("Successful Transaction\n");
             strTranD_user.enTransS_user = TRANS_APPROVED;
+            PS_saveTransaction(strTranD_user);
             return PS_SERVER_APPROVED;
         }
     }
-    return PS_ERROR_OK;
 }
 
 /*************************************************************************************
@@ -128,11 +141,14 @@ PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user)
 * Parameters (out):None
 * Return value: PS_Error_t -> State of the function returned with PS_SERVER_APPROVED,
                               PS_BALANCE_LOW, PS_PAN_NOT_FOUND or PS_ERROR_OK.
-* Description: Function to send data to the server and process it.
+* Description: Function to save transaction data in the server.
 * *************************************************************************************/
 PS_Error_t PS_saveTransaction(strTransactionData_t strTranD_user)
 {
-
+    str_LinkedList_Data_t strLnkdLst_TransData = {strTranD_user};
+    LinkedList_InsertNode_PANSortedASC(gstrLnkLst_TransactionDataBase,\
+                                       strLnkdLst_TransData);
+    return PS_ERROR_OK;
 }
 
 /*************************************************************************************
@@ -146,13 +162,13 @@ PS_Error_t PS_saveTransaction(strTransactionData_t strTranD_user)
 PS_Error_t PS_getCardData(strCardData_t * pstrCD_user)
 {
     printf("Please Insert your Name: ");
-    scanf("%s",pstrCD_user->au8_cardHolderName);
+    gets(pstrCD_user->au8_cardHolderName);
 
-    printf("Please Insert your Card Number: ");
-    scanf("%s",pstrCD_user->au8_primaryAccountNumber);
+    printf("Please Insert your Card Number:");
+    gets(pstrCD_user->au8_primaryAccountNumber);
 
     printf("Please Insert Expiry Date: ");
-    scanf("%s",pstrCD_user->au8_cardExpirationDate);
+    gets(pstrCD_user->au8_cardExpirationDate);
 
     return PS_ERROR_OK;
 }
@@ -168,13 +184,11 @@ PS_Error_t PS_getCardData(strCardData_t * pstrCD_user)
 PS_Error_t PS_getTerminalData(strTerminalData_t * pstrTD_user)
 {
     pstrTD_user->f32_maxAmount = 8000.0;
-    uint8_t au8_userTransactionDate[11];
-
     printf("Please Insert Amount in EGP: ");
-    scanf("%f",&(pstrTD_user->f32_transAmount));
-
+    scanf(" %f",&(pstrTD_user->f32_transAmount));
+    gets(pstrTD_user->au8_transactionDate);
     printf("Please Insert the Transaction Date: ");
-    scanf("%s",pstrTD_user->au8_transactionDate);
+    gets(pstrTD_user->au8_transactionDate);
 
     return PS_ERROR_OK;
 }
@@ -249,6 +263,7 @@ PS_Error_t PS_checkExpiration(uint8_t* pau8_cardExpirationDate, uint8_t* pau8_tr
 void PS_ApplicationStart(void)
 {
     uint8_t User_Answer='N';
+    volatile uint8_t* buffer= NULL_PTR;
     do
     {
         if(PS_StartPaymentSystem() == PS_ERROR_NOK)
@@ -256,6 +271,8 @@ void PS_ApplicationStart(void)
             printf("Transaction Failed\n");
         }
         printf("Do you want to continue? (Y/N)\n");
-        scanf(" %c",&User_Answer);
+        //scanf(" %c",&User_Answer);
+        gets(&User_Answer);
     }while(User_Answer == 'Y');
+    LinkedList_print(gstrLnkLst_TransactionDataBase);
 }

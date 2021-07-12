@@ -14,9 +14,9 @@
  **---- Includes ----**
  **------------------**/
 #include <stdlib.h>
+#include <stdio.h>
 #include "Platform_Types.h"
 #include "StringManipulation.h"
-
 
 /**
  ** MACROS and CONSTANTS
@@ -95,7 +95,7 @@ PS_Error_t PS_getTerminalData(strTerminalData_t * pstrTD_user);
 PS_Error_t PS_processTerminal(strCardData_t * pstrCD_user, strTerminalData_t * pstrTD_user);
 PS_Error_t PS_checkExpiration(uint8_t* pau8_cardExpirationDate, uint8_t* pau8_transactionDate);
 PS_Error_t PS_sendTransactionToServer(strTransactionData_t strTranD_user);
-
+PS_Error_t PS_saveTransaction(strTransactionData_t strTranD_user);
 
 #endif // _S_PAYMENTSYS_H_
 
